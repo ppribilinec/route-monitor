@@ -1,0 +1,23 @@
+rules_version = '2';
+service cloud.firestore {
+ match /databases/{database}/documents {
+ function signed(){return request.auth != null;}
+ function staff(){return signed() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin','dispatcher'];}
+ function admin(){return signed() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';}
+ function qr(t,r,k){let q=get(/databases/$(database)/documents/qr/$(t)).data;return signed() && q.enabled == true && q.route == r && q.kind == k;}
+ function stateAfter(r){return getAfter(/databases/$(database)/documents/states/$(r)).data;}
+ function recordAfter(id){return getAfter(/databases/$(database)/documents/loadings/$(id)).data;}
+ match /users/{uid}{allow get: if signed() && (request.auth.uid == uid || admin());allow list,write: if admin();}
+ match /routes/{id}{allow read: if staff();allow write: if admin();}
+ match /qr/{id}{allow get: if signed();allow list,write: if admin();}
+ match /states/{r}{
+ // State contains no plate or timestamp. Random route IDs are disclosed only by QR lookup.
+ allow get: if signed();allow list: if staff();
+ allow create,update: if request.resource.data.keys().hasOnly(['active','loading','token']) && request.resource.data.loading is string && request.resource.data.token is string && recordAfter(request.resource.data.loading).route == r && recordAfter(request.resource.data.loading).active == request.resource.data.active && recordAfter(request.resource.data.loading).token == request.resource.data.token && ((request.resource.data.active == true && qr(request.resource.data.token,r,'arrival') && (!exists(/databases/$(database)/documents/states/$(r)) || resource.data.active == false) && recordAfter(request.resource.data.loading).arrival == request.time) || (request.resource.data.active == false && resource.data.active == true && resource.data.loading == request.resource.data.loading && qr(request.resource.data.token,r,'departure') && recordAfter(request.resource.data.loading).departure == request.time));
+ }
+ match /loadings/{id}{allow read: if staff();
+ allow create: if request.resource.data.keys().hasOnly(['route','plate','arrival','departure','active','token']) && request.resource.data.plate is string && request.resource.data.plate.size() <= 20 && request.resource.data.arrival == request.time && request.resource.data.departure == null && request.resource.data.active == true && qr(request.resource.data.token,request.resource.data.route,'arrival') && stateAfter(request.resource.data.route).loading == id && stateAfter(request.resource.data.route).active == true && stateAfter(request.resource.data.route).token == request.resource.data.token;
+ allow update: if resource.data.active == true && request.resource.data.active == false && request.resource.data.departure == request.time && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['active','departure','token']) && qr(request.resource.data.token,resource.data.route,'departure') && stateAfter(resource.data.route).loading == id && stateAfter(resource.data.route).active == false && stateAfter(resource.data.route).token == request.resource.data.token;
+ }
+ }
+}
