@@ -1,11 +1,20 @@
-# Route Monitor v2 – aktualizace
+# Route Monitor v3.0
 
-1. Zálohujte Firestore a původní soubory. Aktualizaci provádějte mimo nakládku. Nejdříve ověřte, že žádná nakládka není otevřená.
-2. Ve Firebase publikujte nový obsah firestore.rules (Firestore Database > Rules). Anonymous a Email/Password ponechte povolené.
-3. Na GitHub nahrajte index.html a app.js do kořene repozitáře, přepište původní soubory. Vyčkejte na GitHub Pages.
-4. Přihlaste se původním admin účtem, otevřete Depa a trasy a klikněte Převést data z v1. Původní trasy a záznamy se přiřadí pod Původní depo. Operace je opakovatelná pro dosud nepřevedené záznamy. Při chybě ji opakujte. Staré QR kódy budou deaktivovány.
-5. Přejmenujte depo, nastavte plánované časy tras, vytiskněte nové QR kódy. Staré záznamy nemají plánované časy. Archivace zachovává historii.
-6. V Uživatelé vytvořte dispečery nebo přiřaďte depa existujícím účtům. Login bez @ se interně převádí na adresu @route-monitor.invalid. Hesla jsou pouze ve Firebase Authentication, nikoli Firestore. Pokud selže zápis profilu po vytvoření účtu, doplňte users/{UID} ručně v konzoli nebo odstraňte osiřelý účet v Authentication.
-7. Otestujte příjezd, opakovaný příjezd, odjezd, historii, změnu hesla a přístup dispečera k povolenému i nepovolenému depu. Před ostrým provozem otestujte pravidla v emulátoru.
+Aktualizace z v2: zachovejte existujici Firebase projekt a data. Zalohujte databazi a repozitar, aktualizujte mimo nakladku. Nespoustejte migraci v1 znovu.
 
-Datum historie je datum příjezdu v Europe/Prague. Výjezd s plánem dřívějším než plán příjezdu se vyhodnotí následující den. Kladná odchylka je zpoždění, záporná předstih. Plán se ukládá při příjezdu. Historie načítá záznamy vybraného depa a filtruje datum v prohlížeči; pro velké objemy je vhodné přidat serverový filtr a index. Statický QR není důkaz fyzické přítomnosti. Vytváření účtů používá sekundární Firebase Auth instanci; veřejnou registraci nelze tímto řešením zakázat, ale účty bez profilu nemají přístup k interním datům. Pro ostrý provoz doporučujeme Cloud Functions a App Check.
+1. Pro spravu hesel a mazani cizich uctu je nutna Cloud Function. Firebase projekt musi mit tarif Blaze (placeni dle spotreby). Nastavte upozorneni na rozpocet. Nainstalujte Node.js 22 a Firebase CLI (`npm install -g firebase-tools`). V rozbalenem adresari spustte:
+
+```
+firebase login
+cd functions
+npm install
+cd ..
+firebase deploy --only functions:manageUser,firestore:rules --project route-monitor-4c0aa
+```
+
+2. Na GitHub nahrajte index.html a app.js do korene repozitare (nahrazeni). Zdroj funkce a firebase.json muzete verzovat take, nejsou nutne pro Pages. Nenahravejte node_modules ani prihlasovaci klice. Pokud funkci zatim nenasadite, mazani uctu a zmena ciziho hesla nebudou fungovat; ostatni funkce lze pouzit po publikaci firestore.rules v konzoli.
+3. Prihlaste se jako admin, Nastaveni: nastavte globalni interval (15-3600 sekund, vychozi 60). Dispecer muze menit jen vlastni heslo. Zmena intervalu se projevi po dalsim cyklu.
+4. Depa a trasy: Deaktivovat od data skryje trasu od zvoleneho dne vcetne; zruseni deaktivace ji znovu zobrazi. QR zustava stejny. Historicke dny pred deaktivaci zustavaji dostupne. Deaktivace je v teto verzi kontrolovana klientem, nikoli serverovymi pravidly; nejde o bezpecnostni blokaci QR. Historie prazdnych tras vychazi z aktualni konfigurace, nikoli z historickeho rozpisu. 
+5. Otestujte admin i dispecera, zmenu hesla a smazani testovaciho uctu, datum, QR a barvy. Admin nemuze smazat vlastni ucet. Smazani odebere profil a nasledne Auth ucet; pri chybe druhe operace zkontrolujte Authentication v konzoli.
+
+JavaScript syntaxe overena, zive nasazeni, emulator pravidel a integracni testy neprovedeny. Staticke QR lze kopirovat. Pred ostrym provozem overte zabezpeceni s IT.

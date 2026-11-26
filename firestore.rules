@@ -8,6 +8,7 @@ service cloud.firestore {
  function stateAfter(r){return getAfter(/databases/$(database)/documents/states/$(r)).data;}
  function recordAfter(id){return getAfter(/databases/$(database)/documents/loadings/$(id)).data;}
  function access(d){return admin() || (staff() && d in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.depots);}
+ match /settings/{id}{allow read: if staff();allow write: if admin();}
  match /depots/{id}{allow get: if access(id);allow list,write: if admin();}
  match /users/{uid}{allow get: if signed() && (request.auth.uid == uid || admin());allow list,write: if admin();}
  match /routes/{id}{allow read: if admin() || access(resource.data.depot);allow write: if admin();}
