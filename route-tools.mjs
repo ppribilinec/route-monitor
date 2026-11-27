@@ -1,4 +1,25 @@
 // Pure route data helpers are shared by the editor, preview and PDF export.
+const routeCollator = new Intl.Collator('cs', {numeric: true, sensitivity: 'base'});
+export function compareRouteNames(a, b) {
+  return routeCollator.compare(String(a || '').trim(), String(b || '').trim());
+}
+
+export function sortRoutes(routes) {
+  return [...routes].sort((a, b) => compareRouteNames(a.name, b.name) ||
+    String(a.id || '').localeCompare(String(b.id || '')));
+}
+
+export function normalizedRouteName(name) {
+  return String(name || '').normalize('NFC').trim().replace(/\s+/gu, ' ').toLocaleLowerCase('cs');
+}
+
+export function assertUniqueRouteName(route, routes, ownId) {
+  const name = normalizedRouteName(route.name);
+  if (routes.some(other => other.id !== ownId && other.depot === route.depot && normalizedRouteName(other.name) === name)) {
+    throw Error('V tomto depu již existuje trasa se stejným názvem. Zadejte jiný název (platí i pro archivované a deaktivované trasy).');
+  }
+}
+
 export function routeFields(route = {}) {
   const {id, qr, arrival, departure, createdAt, updatedAt, ...fields} = route;
   return fields;
@@ -186,6 +207,7 @@ async function drawTextBand(pdf, page, text, y, height, fontSize, color = '#1111
 export async function buildDepotQrPdf(depot, routes, base = location.href) {
   if (!routes.length) throw Error('Depo nemá žádné trasy k exportu.');
   if (!window.PDFLib || !window.QRCode) throw Error('Knihovna pro PDF nebo QR není dostupná. Obnovte stránku.');
+  routes = sortRoutes(routes);
   const urls = routes.map(route => routeQrUrl(route, base));
   const {PDFDocument, rgb} = window.PDFLib;
   const pdf = await PDFDocument.create();
