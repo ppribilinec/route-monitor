@@ -1,1 +1,13 @@
-{"name":"route-monitor-admin","private":true,"main":"index.js","engines":{"node":"22"},"dependencies":{"firebase-admin":"^13.0.0","firebase-functions":"^6.0.0"}}
+{
+  "name": "route-monitor-admin",
+  "private": true,
+  "main": "index.js",
+  "engines": {"node": "22"},
+  "scripts": {
+    "test": "node --test tests/routes.test.mjs",
+    "test:browser": "node tests/browser.cjs",
+    "test:pdf": "node tests/verify-pdf.cjs"
+  },
+  "dependencies": {"firebase-admin": "^13.0.0", "firebase-functions": "^6.0.0"},
+  "devDependencies": {"playwright": "1.62.1", "pdfjs-dist": "5.6.205", "@napi-rs/canvas": "0.1.100", "jsqr": "1.4.0"}
+}

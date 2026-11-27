@@ -1,0 +1,19 @@
+.route-list { font-size: 14px; }
+.route-list td, .route-list th { padding: 8px; white-space: nowrap; }
+.route-list th[scope="row"] { background: transparent; }
+.route-actions button { padding: 6px 8px; margin: 2px; font-size: 13px; }
+.route-dialog { border: 0; border-radius: 12px; padding: 24px; width: min(720px, calc(100% - 64px)); max-height: 85vh; overflow: auto; color: #183044; }
+.route-dialog::backdrop { background: #10243499; }
+.route-dialog h2 { margin-top: 0; }
+.route-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+.route-form label { display: flex; flex-direction: column; gap: 4px; }
+.route-form input, .route-form select { min-width: 0; margin: 0; }
+.route-form input[type="checkbox"] { align-self: start; }
+.route-form [role="status"] { grid-column: 1 / -1; color: #9b341d; }
+.qr-poster { text-align: center; color: #111; }
+.qr-poster h3 { font-size: 26px; overflow-wrap: anywhere; }
+.qr-poster canvas { display: block; width: min(100%, 480px); height: auto; margin: auto; }
+.qr-poster strong { display: block; color: #e60000; font-size: 42px; overflow-wrap: anywhere; }
+.qr-poster p { font-size: 24px; margin: 12px 0; overflow-wrap: anywhere; }
+.qr-poster small { display: block; margin: 16px 0; }
+@media(max-width: 540px) { .route-form { grid-template-columns: 1fr; } }
