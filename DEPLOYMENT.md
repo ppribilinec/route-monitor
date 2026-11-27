@@ -19,6 +19,8 @@ Správa tras používá tabulku (jedna trasa na řádek) bez automatického vykr
 
 ## Publikace aplikace
 
+Aktuální nastavení ověřené přes GitHub API dne 27. 11. 2026: GitHub Pages publikuje větev `main`, složku `/` (kořen), v režimu publikace z větve. Veřejná adresa je `https://ppribilinec.github.io/route-monitor/`. Po sloučení PR do `main` se tato sada souborů publikuje obvyklým procesem Pages; není potřeba měnit nastavení zdroje.
+
 1. Zkontrolujte PR a slučte větev `feat/route-list-qr-export-copy` do větve používané pro GitHub Pages. Ponechte stejný projekt Firebase i stejnou veřejnou adresu aplikace, aby fungovaly už vytištěné QR kódy.
 2. V GitHub repozitáři otevřete **Settings → Pages** a ověřte zdroj publikace. Při režimu „Deploy from a branch“ vyberte větev s touto změnou (typicky `main`) a složku `/(root)`. Pokud používáte existující Actions workflow, publikujte jím stejnou sadu souborů.
 3. Publikovat se musí současně `index.html`, `app.js`, `route-tools.mjs`, `routes.css` a celá složka `vendor/` (oba JS soubory včetně licencí). Samotné nahrazení původních dvou souborů nestačí. Není potřeba frontend sestavovat ani instalovat npm balíčky na hosting.
